@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+if ARGV.empty?
+  puts "usage: cuba [s (development)] [test]"
+  exit
+end
+
+ENV['RACK_ENV'] ||= 'development'
+
+require 'rubygems'
+require 'bundler/setup'
+Bundler.require(:cuba, ENV['RACK_ENV'] || ENV['RAILS_ENV'])
+require 'clap'
+
+class Cuba
+  module CLI
+    extend self
+
+    VERSION = '0.0.1'
+
+    def version
+      say VERSION
+    end
+
+    def help(command)
+      # display help
+    end
+
+    def server env = 'production'
+      system("env $(cat .env) ENV['RACK_ENV']=#{env} mr-sparkle")
+    end
+
+    def test
+      Dir["./test/**/*_test.rb"].each_with_index do |file, i|
+        if i != 0
+          print "   \e[90mFile: #{file}"
+        else
+          print "\n   \e[90mFile: #{file}"
+        end
+        system "env $(cat .env) bin/cutest #{file}"
+      end
+    end
+
+    private
+
+    def root
+      File.expand_path(File.dirname(__FILE__))
+    end
+  end
+end
+
+Clap.run ARGV,
+  "s"    => Cuba::CLI.method(:server),
+  "test" => Cuba::CLI.method(:test),
+  "-v"   => Cuba::CLI.method(:version),
+  "-h"   => Cuba::CLI.method(:help)

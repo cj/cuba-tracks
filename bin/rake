@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+ENV['RACK_ENV'] ||= 'development'
+
+require 'bundler/setup'
+File.write '.env', '' unless File.exists? '.env'
+File.foreach ".env" do |line|
+  key, value = line.split "="
+  ENV[key] = value.gsub('\n', '').strip
+end
+
+Bundler.require(:cuba, (ENV['RACK_ENV'] || ENV['RAILS_ENV']))
+
+load Gem.bin_path('rake', 'rake')
