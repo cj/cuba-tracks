@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'cuba/tracks/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "cuba_tracks"
+  spec.name          = "cuba-tracks"
   spec.version       = Cuba::Tracks::VERSION
   spec.authors       = ["cj"]
   spec.email         = ["cjlazell@gmail.com"]
