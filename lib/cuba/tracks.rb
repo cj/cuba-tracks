@@ -1,5 +1,6 @@
 # deps
 require 'cuba/render'
+require "cuba/sugar"
 require "rack/protection"
 # tracks
 require "cuba/tracks/version"
@@ -7,7 +8,6 @@ require "cuba/tracks/middleware"
 # patches
 require 'patch/string'
 require 'patch/cuba'
-require "patch/cuba-sugar"
 
 class Cuba::Tracks < Cuba
   def self.app
@@ -17,20 +17,19 @@ class Cuba::Tracks < Cuba
   end
 
   def self.initialize!
-    require "plugin/recursive_ostruct"
+    settings[:root] = root
 
-    Dir["config/initializers/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{root}/config/initializers/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{root}/app/widgets/**/*.rb"].each  { |rb| require rb  }
 
-    require "app/assets/assets"
+    require "#{root}/app/assets/assets"
 
-    Dir["app/routes/**/*.rb"].each  { |rb| require rb  }
-    Dir["app/presenters/**/*.rb"].each  { |rb| require rb  }
-    Dir["app/mailers/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{root}/app/routes/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{root}/app/presenters/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{root}/app/mailers/**/*.rb"].each  { |rb| require rb  }
 
-    require "config/routes"
+    require "#{root}/config/routes"
   end
-
-  $:.unshift root
 
   module Routes end
 
@@ -41,6 +40,8 @@ class Cuba::Tracks < Cuba
     require "tilt/coffee"
     require "tilt/sass"
   end
+
+  require "plugin/recursive_ostruct"
 
   autoload :ActiveRecordCuba , "plugin/active_record"
   autoload :Assets           , "plugin/assets"

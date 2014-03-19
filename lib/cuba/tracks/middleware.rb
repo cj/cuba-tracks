@@ -7,7 +7,9 @@ class Cuba::Tracks
         # except    = Array options[:except]
         # use_these = Array options[:use]
         Rack::Builder.new do
-          use Rack::Session::Cookie, secret: ENV['SECRET_BASE_KEY']
+          if not Cuba.env.mounted?
+            use Rack::Session::Cookie, secret: ENV['SECRET_BASE_KEY']
+          end
           # we need to disable session_hijacking because IE uses different headers
           # for ajax request over standard ones.
           # https://github.com/rkh/rack-protection/issues/11#issuecomment-9005539
