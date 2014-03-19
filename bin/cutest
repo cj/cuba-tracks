@@ -1,21 +1,17 @@
 #!/usr/bin/env ruby
 
 ENV['RACK_ENV'] = 'test'
-ENV['CUBA_BIN'] = 'true'
 
-File.write '.env', '' unless File.exists? '.env'
-File.foreach ".env" do |line|
+File.foreach Dir.getwd + "/.env" do |line|
   key, value = line.split "="
   ENV[key] = value.gsub('\n', '').strip
 end
 
-require 'rubygems'
 require 'bundler/setup'
-Bundler.require(:cuba, (ENV['RACK_ENV'] || ENV['RAILS_ENV']))
+Bundler.require :cuba, (ENV['RACK_ENV'] || ENV['RAILS_ENV'])
 
 require "cuba/test"
 require 'awesome_print'
 require 'pry'
-require_relative '../test/helpers/global'
 
 load Gem.bin_path('cutest', 'cutest')

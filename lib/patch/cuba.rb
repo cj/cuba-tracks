@@ -1,13 +1,19 @@
 class Cuba
   class << self
+    attr_accessor :root
+
     def env
       @env ||= EnvString.new(
         ENV['RACK_ENV'] || ENV['RAILS_ENV'] || 'development'
       )
     end
 
+    def root= path
+      @root = path
+    end
+
     def root
-      Dir.getwd
+      @root ||= Dir.getwd
     end
 
     # backwards compatibility

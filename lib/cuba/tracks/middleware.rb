@@ -20,6 +20,8 @@ class Cuba::Tracks
           end
 
           if Cuba.env.test? or Cuba.env.development?
+            require 'pry'
+            require 'pry-rescue'
             use PryRescue::Rack
           end
           # continue running the application
