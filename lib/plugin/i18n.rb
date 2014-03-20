@@ -10,7 +10,7 @@ class Cuba
       app.settings[:translations] = File.join(app.root, 'i18n')
       ::R18n::Filters.off :untranslated
       ::R18n::Filters.on :untranslated_html
-      if app.test? or app.development?
+      if app.env.test? or app.env.development?
         ::R18n.clear_cache!
       end
     end
