@@ -6,8 +6,8 @@ require "rack/protection"
 require "cuba/tracks/version"
 require "cuba/tracks/middleware"
 # patches
-require 'patch/string'
-require 'patch/cuba'
+require 'cuba/patch/string'
+require 'cuba/patch/cuba'
 
 class Cuba::Tracks < Cuba
   def self.app
@@ -41,17 +41,17 @@ class Cuba::Tracks < Cuba
     require "tilt/sass"
   end
 
-  require "plugin/recursive_ostruct"
+  require "cuba/plugin/recursive_ostruct"
 
-  autoload :ActiveRecordCuba , "plugin/active_record"
-  autoload :Assets           , "plugin/assets"
-  autoload :Auth             , "plugin/auth"
-  autoload :CommonPlugin     , "plugin/common"
-  autoload :Environment      , "plugin/environment"
-  autoload :FormBuilder      , "plugin/form_builder"
-  autoload :I18N             , "plugin/i18n"
-  autoload :S3DirectUpload   , "plugin/s3_direct_upload"
-  autoload :Widgets          , "plugin/widgets"
+  autoload :ActiveRecordCuba , "cuba/plugin/active_record"
+  autoload :Assets           , "cuba/plugin/assets"
+  autoload :Auth             , "cuba/plugin/auth"
+  autoload :CommonPlugin     , "cuba/plugin/common"
+  autoload :Environment      , "cuba/plugin/environment"
+  autoload :FormBuilder      , "cuba/plugin/form_builder"
+  autoload :I18N             , "cuba/plugin/i18n"
+  autoload :S3DirectUpload   , "cuba/plugin/s3_direct_upload"
+  autoload :Widgets          , "cuba/plugin/widgets"
   # ActionMailer
   # https://gist.github.com/acwright/1944639
   # DelayedJob

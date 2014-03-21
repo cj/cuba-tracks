@@ -4,6 +4,7 @@ module FormBuilder
       options[:value]   = 'on' if data.value == true
       options[:checked] = 'checked' if data.value
       options[:type]    = :checkbox
+      options[:class].gsub!(/form-control/, '')
 
       super
     end

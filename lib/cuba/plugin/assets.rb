@@ -20,7 +20,7 @@ module Assets
       disable_escape: true,
       use_html_safe: true,
       disable_capture: false,
-      pretty: (app.production? or app.staging?) ? false : true
+      pretty: (app.env.production? or app.env.staging?) ? false : true
 
     app.settings[:assets] ||= OpenStruct.new({
       settings: {},
@@ -47,6 +47,22 @@ module Assets
     "http#{req.env['SERVER_PORT'] == '443' ? 's' : ''}://#{req.env['HTTP_HOST']}#{path}"
   end
 
+  def image_tag file, options = {}
+    options[:src] = asset_path(file)
+    mab do
+      img options
+    end
+  end
+
+  def fa_icon icon, options = {}
+    options[:class] ||= ''
+    options[:class] += " fa fa-#{icon}"
+
+    mab do
+      i options
+    end
+  end
+
   def accepted_assets
     "(.*)\.(js|css|eot|svg|ttf|woff|png|gif|jpg|jpeg)$"
   end
@@ -54,7 +70,7 @@ module Assets
   private
 
   def cache_string
-    if production?
+    if Cuba.env.production?
       # @cache_string ||= (File.read "#{Assets.app.root}/sha") + "/"
     end
   end
@@ -85,7 +101,6 @@ module Assets
     def app
       App.settings = settings
       App.root = settings[:root]
-      App.plugin Environment
       App.plugin Cuba::Render
       App.plugin Assets
       App

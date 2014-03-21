@@ -2,6 +2,7 @@ module FormBuilder
   class RadioInput < Input
     def display
       options[:type] = :radio
+      options[:class].gsub!(/form-control/, '')
 
       radios = options[:radios] || [:yes, :no]
 
@@ -13,7 +14,6 @@ module FormBuilder
             name = name.to_s
             opts[:value] = name
             opts[:id]    =  "#{options[:id]}_#{i}"
-            opts[:class].gsub!(/form-control/, '')
 
             if (opts[:value] == 'no' and data.value == false) \
             or (opts[:value] == 'yes' and data.value == true)

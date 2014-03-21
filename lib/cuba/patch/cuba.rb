@@ -36,5 +36,22 @@ class Cuba
     def mounted?
       defined?(::Rails) ? true : false
     end
+
+    def console?
+      ENV['CUBA_CONSOLE'] ? true : false
+    end
+  end
+
+  module Render
+    alias original_partial partial
+
+    def view(template, locals = {}, layout = settings[:render][:layout])
+      original_partial(layout, { content: original_partial(template, locals) }.merge(locals))
+    end
+
+    def partial template, locals = {}
+      partial_template = template.gsub(/([a-zA-Z_]+)$/, '_\1')
+      render(template_path(partial_template), locals, settings[:render][:options])
+    end
   end
 end

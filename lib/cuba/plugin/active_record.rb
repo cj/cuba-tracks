@@ -16,18 +16,20 @@ module ActiveRecordCuba
       require 'enumerize'
       require 'protector'
       Protector::Adapters::ActiveRecord.activate!
-      Dir["../../app/models/permissions/**/*.rb"].each {|rb| require rb }
+      Dir["#{app.root}/app/models/permissions/**/*.rb"].each {|rb| require rb }
+      Dir["#{app.root}/app/permissions/**/*.rb"].each {|rb| require rb }
       start_active_record
     end
 
     Dir["#{app.root}/app/models/*.rb"].each  { |rb| require rb  }
     Dir["#{app.root}/app/models/**/*.rb"].each  { |rb| require rb  }
+    Dir["#{app.root}/app/forms/**/*.rb"].each {|rb| require rb }
   end
 
   private
 
   def self.start_active_record
-    if not app.test?
+    if not app.env.test?
       return if ActiveRecord::Base.connected?
     else
       if ActiveRecord::Base.connected?

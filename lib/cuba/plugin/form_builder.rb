@@ -90,6 +90,11 @@ module FormBuilder
       input field_name, options
     end
 
+    def input_field field_name, options = {}
+      options[:wrapper] = false
+      input field_name, options
+    end
+
     def input field_name, options = {}
       names = [].concat models
       if options.delete(:is_association)
@@ -244,9 +249,15 @@ module FormBuilder
     end
 
     def wrapper field_name, nested_name, input, options
+      if w = options[:wrapper] and w.is_a? String
+        label_width, input_width = w.split ','
+      else
+        label_width, input_width = [3, 9]
+      end
+
       mab do
         div class: "form-group #{errors?(record, field_name) ? 'has-error has-feedback' : ''}" do
-          label for: id_for(nested_name), class: 'control-label col-sm-2' do
+          label for: id_for(nested_name), class: "control-label col-sm-#{label_width}" do
             if required? record, field_name, options
               abbr title: 'required' do
                 text '*'
@@ -259,7 +270,7 @@ module FormBuilder
 
             text! i18n_name
           end
-          div class: 'col-sm-10' do
+          div class: "col-sm-#{input_width}" do
             text! input.render
             if errors = errors?(record, field_name)
               span class: 'help-block has-error' do
