@@ -79,7 +79,7 @@ module S3DirectUpload
           class: @options[:class] || '',
           method: "post",
           authenticity_token: false,
-          multipart: true,
+          enctype: "multipart/form-data",
           data: {
             'callback-url' => @options[:callback_url],
             'callback-method' => @options[:callback_method],

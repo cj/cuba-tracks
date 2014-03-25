@@ -1,34 +1,14 @@
 module FormBuilder
   class FileInput < Input
     def display
-      opts = {
-        class: '',
-        record: record
-      }.reverse_merge options
-
-      opts[:class] += ' s3_upload_form'
-
-      uploader =  S3DirectUpload::UploadHelper::S3Uploader.new(opts)
-
-      opts = {
-        action: uploader.url
-      }.merge uploader.form_options
-
-      data = opts.delete(:data)
-
-      data.each do |key, value|
-        opts["data-#{key}"] = value
-      end
+      key = options[:s3_upload_path].call(record)
 
       mab do
-        html do
-          div opts do
-            uploader.fields.map do |name, value|
-              input type: :hidden, name: name, value: value
-            end
-
-            input type: (options[:value] ? :hidden : :file), name: options[:name], class: 'form-control file', value: options[:value]
-          end
+        if options[:value]
+          input id: id, type: :hidden, name: options[:name], class: 'form-control file', value: options[:value], 'data-s3-uploader' => S3Uploader.js_button_options(id, key, options[:success_url], options[:params])
+        else
+          div id: id, name: options[:name], class: 'form-control file', value: options[:value], 'data-s3-uploader' => S3Uploader.js_button_options(id, key, options[:success_url], options[:params])
+          text! S3Uploader.js_button(id, key, options[:success_url], options[:params])
         end
       end
     end
