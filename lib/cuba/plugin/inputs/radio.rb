@@ -16,7 +16,8 @@ module FormBuilder
             opts[:id]    =  "#{options[:id]}_#{i}"
 
             if (opts[:value] == 'no' and data.value == false) \
-            or (opts[:value] == 'yes' and data.value == true)
+            or (opts[:value] == 'yes' and data.value == true) \
+            or (opts[:value] == data.value)
               opts[:checked] = 'checked'
             else
               opts.delete :checked
