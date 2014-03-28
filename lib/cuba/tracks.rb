@@ -2,14 +2,17 @@
 require 'cuba/render'
 require "cuba/sugar"
 require "rack/protection"
-# tracks
-require "cuba/tracks/version"
-require "cuba/tracks/middleware"
 # patches
 require 'cuba/patch/string'
 require 'cuba/patch/cuba'
+# tracks
+require "cuba/tracks/version"
+require "cuba/tracks/base"
+require "cuba/tracks/middleware"
 
 class Cuba::Tracks < Cuba
+  extend Cuba::Tracks::Base::ClassMethods
+
   def self.app
     @app ||= Rack::Builder.new do
       use Middleware
@@ -20,6 +23,14 @@ class Cuba::Tracks < Cuba
     settings[:root] = root
 
     Dir["#{root}/config/initializers/**/*.rb"].each  { |rb| require rb  }
+
+    Dir["#{root}/app/models/permissions/**/*.rb"].each {|rb| require rb }
+    Dir["#{root}/app/permissions/**/*.rb"].each {|rb| require rb }
+    Dir["#{root}/app/models/*/*.rb"].each {|rb| require rb }
+    Dir["#{root}/app/models/**/*.rb"].each {|rb| require rb }
+    Dir["#{root}/app/forms/*/*.rb"].each {|rb| require rb }
+    Dir["#{root}/app/forms/**/*.rb"].each {|rb| require rb }
+
     Dir["#{root}/app/widgets/**/*.rb"].each  { |rb| require rb  }
 
     require "#{root}/app/assets/assets"

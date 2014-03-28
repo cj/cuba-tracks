@@ -9,21 +9,15 @@ module ActiveRecordCuba
   def self.setup app
     require 'mini_record'
     self.app = app
-
+    ActiveRecord::Base.default_timezone = Time.zone
     ActiveRecord::Base.send :include, ActiveRecordCuba::Form
 
     if not app.mounted?
       require 'enumerize'
       require 'protector'
       Protector::Adapters::ActiveRecord.activate!
-      Dir["#{app.root}/app/models/permissions/**/*.rb"].each {|rb| require rb }
-      Dir["#{app.root}/app/permissions/**/*.rb"].each {|rb| require rb }
       start_active_record
     end
-
-    Dir["#{app.root}/app/models/*.rb"].each  { |rb| require rb  }
-    Dir["#{app.root}/app/models/**/*.rb"].each  { |rb| require rb  }
-    Dir["#{app.root}/app/forms/**/*.rb"].each {|rb| require rb }
   end
 
   private

@@ -46,7 +46,11 @@ module Widgets
 
     widget = req.env[:loaded_widgets][name]
 
-    widget.render state, opts
+    if widget.method(state).parameters.length > 0
+      widget.send state, opts
+    else
+      widget.send state
+    end
   end
   alias_method :widget_render, :render_widget
 
@@ -298,7 +302,6 @@ module Widgets
   class Routes < Struct.new(:settings)
     def app
       App.settings = settings
-      App.plugin Environment
       App.plugin Cuba::Render
       App.plugin Auth
       App.plugin Assets
