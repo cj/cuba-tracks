@@ -9,7 +9,6 @@ module ActiveRecordCuba
   def self.setup app
     require 'mini_record'
     self.app = app
-    ActiveRecord::Base.default_timezone = Time.zone
     ActiveRecord::Base.send :include, ActiveRecordCuba::Form
 
     if not app.mounted?
@@ -17,6 +16,8 @@ module ActiveRecordCuba
       require 'protector'
       Protector::Adapters::ActiveRecord.activate!
       start_active_record
+    else
+      ActiveRecord::Base.default_timezone = Time.zone
     end
   end
 
