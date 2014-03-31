@@ -6,6 +6,8 @@ require "rack/protection"
 require 'cuba/patch/string'
 require 'cuba/patch/cuba'
 # tracks
+class Cuba::Tracks < Cuba
+end
 require "cuba/tracks/version"
 require "cuba/tracks/base"
 require "cuba/tracks/middleware"
