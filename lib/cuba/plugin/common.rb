@@ -9,7 +9,7 @@ module CommonPlugin
 
   def path_for url
     if CommonPlugin.app.mounted?
-      "/vendors/signup/#{url}"
+      "#{app.settings[:mounted_url]}/#{url}"
     else
       "/#{url}"
     end
