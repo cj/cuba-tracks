@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'cuba/tracks/version'
+# require 'cuba/tracks/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "cuba-tracks"
-  spec.version       = Cuba::Tracks::VERSION
+  spec.version       = "0.0.1" # Cuba::Tracks::VERSION
   spec.authors       = ["cj"]
   spec.email         = ["cjlazell@gmail.com"]
   spec.description   = %q{}
