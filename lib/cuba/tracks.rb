@@ -22,23 +22,32 @@ class Cuba::Tracks < Cuba
   def self.initialize!
     settings[:root] = root
 
+    # Initializers
     Dir["#{root}/config/initializers/**/*.rb"].each  { |rb| require rb  }
 
+    # Permissions
     Dir["#{root}/app/models/permissions/**/*.rb"].each {|rb| require rb }
     Dir["#{root}/app/permissions/**/*.rb"].each {|rb| require rb }
+
+    # Models
     Dir["#{root}/app/models/*/*.rb"].each {|rb| require rb }
     Dir["#{root}/app/models/**/*.rb"].each {|rb| require rb }
+
+    # Forms
     Dir["#{root}/app/forms/*/*.rb"].each {|rb| require rb }
     Dir["#{root}/app/forms/**/*.rb"].each {|rb| require rb }
 
-    Dir["#{root}/app/widgets/**/*.rb"].each  { |rb| require rb  }
+    # Assets
+    require "#{root}/config/assets"
 
-    require "#{root}/app/assets/assets"
-
-    Dir["#{root}/app/routes/**/*.rb"].each  { |rb| require rb  }
+    # Presenters
     Dir["#{root}/app/presenters/**/*.rb"].each  { |rb| require rb  }
+
+    # Mailers
     Dir["#{root}/app/mailers/**/*.rb"].each  { |rb| require rb  }
 
+    # Routes
+    Dir["#{root}/app/routes/**/*.rb"].each  { |rb| require rb  }
     require "#{root}/config/routes"
   end
 
