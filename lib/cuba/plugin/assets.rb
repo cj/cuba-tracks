@@ -24,14 +24,14 @@ module Assets
 
     app.settings[:assets] ||= OpenStruct.new({
       settings: {},
-      css: [],
+      stylesheet: [],
       images: [],
-      js_head: [],
-      js: []
+      javascript_head: [],
+      javascript: []
     })
   end
 
-  %w(css image js js_head).each do |type|
+  %w(stylesheet javascript javascript_head).each do |type|
     define_method "#{type}_assets" do
       plugin[:"#{type}"]
     end
@@ -79,62 +79,50 @@ module Assets
     Assets.app.settings[:assets]
   end
 
-  def javascript_links
-    assets = []
+  def  links_for type, opts = {}
+    method    = :link
+    path      = :href
+    extention = :css
 
-    js_assets.each do |asset|
-      assets.push asset.gsub(/coffee/, 'js')
+    options = {
+      'data-turbolinks-track' => true
+    }
+
+    case type
+    when :stylesheet_assets
+      options.merge!({
+        rel: 'stylesheet',
+        type: 'text/css',
+        media: 'all'
+      })
+    when :javascript_assets, :javascript_head_assets
+      method    = :script
+      path      = :src
+      extention = :js
+    else
+      raise 'Please choose a type: stylesheet_assets, javascript_head_assets or javascript_assets'
     end
+
+    # merge in the user options allowing them to override
+    options.merge! opts
+
+    app = self
 
     mab do
-      if Cuba.env.production? or Cuba.env.staging?
-        script 'data-turbolinks-track' => true, src: asset_path(assets.join(','))
+      if Cuba.env or Cuba.env.production? or Cuba.env.staging?
+        options[path] = asset_path "#{type}.#{extention}"
+        send(method, options)
       else
-        assets.each do |asset|
-          script 'data-turbolinks-track' => true, src: asset_path(asset)
-        end
-      end
-    end
-  end
-
-  %w(css js js_head).each do |type|
-    define_method "#{type}_links" do
-      assets = []
-
-      send("#{type}_assets").each do |asset|
-        assets.push asset.gsub(/\.coffee/, '.js').gsub(/\.scss/, '.css')
-      end
-
-      return_links type, assets
-    end
-  end
-
-  private
-
-  def return_links type, assets
-    mab do
-      if Cuba.env.production? or Cuba.env.staging?
-        if type.to_s == 'js' or type.to_s == 'js_head'
-          script 'data-turbolinks-track' => 'true', src: asset_path(assets.join(','))
-        else
-          link 'data-turbolinks-track' => 'true', href: asset_path(assets.join(',')),
-            rel: 'stylesheet', type: 'text/css', media: 'all'
-        end
-      else
-        assets.each do |asset|
-          if type.to_s == 'js' or type.to_s == 'js_head'
-            script 'data-turbolinks-track' => true, src: asset_path(asset)
-          else
-            link 'data-turbolinks-track' => 'true', href: asset_path(asset),
-              rel: 'stylesheet', type: 'text/css', media: 'all'
-          end
+        app.send(type).each do |asset|
+          options[path] = asset_path asset.gsub(/\.coffee/, '.js').gsub(/\.scss/, '.css')
+          send(method, options)
         end
       end
     end
   end
 
   module ClassMethods
-    %w(css image js js_head).each do |type|
+    %w(stylesheet javascript javascript_head).each do |type|
       define_method "#{type}_assets" do |files|
         files.each do |path|
           settings[:assets][:"#{type}"] << path
@@ -151,6 +139,12 @@ module Assets
     end
   end
 
+  class Helpers
+    def asset_path path
+      Cuba.root + '/app/assets/' + path
+    end
+  end
+
   class Routes < Struct.new(:settings)
     def app
       App.settings = settings
@@ -161,58 +155,45 @@ module Assets
     end
   end
 
+  # erb  = Tilt::ERBTemplate.new "#{Assets.app.root}/app/assets/#{file}.scss"
+  # scss = Tilt::ScssTemplate.new{ erb.render(Helpers.new)  }
+
+  # scss.render
   class App < Cuba
     def add_asset file, ext
-      if file[/bower/]
-        if ext == 'css' and css_assets.include? file + '.scss'
-          render "#{Assets.app.root}/app/assets/#{file}.scss"
-        elsif js_assets.include? file + '.coffee' or js_head_assets.include? file + '.coffee'
-          render "#{Assets.app.root}/app/assets/#{file}.coffee"
-        else
-          File.read "#{Assets.app.root}/app/assets/#{file}.#{ext}"
-        end
+      dir     = ''
+      new_ext = false
+
+      case ext
+      when 'css'
+        dir     = !file[/^bower/] ? 'stylesheets/' : ''
+        new_ext = 'scss' if stylesheet_assets.include? file + '.scss'
+      when 'js'
+        dir     = !file[/^bower/] ? 'javascripts/' : ''
+        new_ext = 'coffee' if javascript_assets.include? file + '.coffee' \
+                           or javascript_head_assets.include? file + '.coffee'
+      end
+
+      if new_ext
+        render "#{Assets.app.root}/app/assets/#{dir}#{file}.#{new_ext}"
       else
-        case ext
-        when 'css'
-          if css_assets.include? file + '.scss'
-            render "#{Assets.app.root}/app/assets/stylesheets/#{file}.scss"
-          else
-            File.read "#{Assets.app.root}/app/assets/stylesheets/#{file}.#{ext}"
-          end
-        when 'js'
-          if js_assets.include? file + '.coffee'or js_head_assets.include? file + '.coffee'
-            render "#{Assets.app.root}/app/assets/javascripts/#{file}.coffee"
-          else
-            File.read "#{Assets.app.root}/app/assets/javascripts/#{file}.#{ext}"
-          end
-        else
-          File.read "#{Assets.app.root}/app/assets/#{file}.#{ext}"
-        end
+        File.read "#{Assets.app.root}/app/assets/#{dir}#{file}.#{ext}"
       end
     end
 
     define do
       on get, accepted_assets do |file, ext|
-        if file[/,/]
-          file_content = ''
-          file += ".#{ext}"
-          files = file.split ','
-          files.each_with_index do |f, i|
-            ext = File.extname(f)
-            f = f.gsub(ext, '')
-            ext.slice! 0
+        res.headers["Content-Type"] = "#{MimeMagic.by_extension(ext).to_s}; charset=utf-8"
 
-            if i == 0
-              res.headers["Content-Type"] = "#{MimeMagic.by_extension(ext).to_s}; charset=utf-8"
-            end
+        if %w(stylesheet_assets javascript_head_assets javascript_assets).include? file
+          content = ''
 
-            file_content += add_asset f, ext
+          send(file).each do |asset|
+            content += add_asset asset.sub(/(\.)(?!.*\.).+/, ""), ext
           end
 
-          res.write file_content
+          res.write content
         else
-          res.headers["Content-Type"] = "#{MimeMagic.by_extension(ext).to_s}; charset=utf-8"
-
           res.write add_asset file, ext
         end
       end
