@@ -109,7 +109,7 @@ module Assets
     app = self
 
     mab do
-      if Cuba.env or Cuba.env.production? or Cuba.env.staging?
+      if Cuba.env.production? or Cuba.env.staging?
         options[path] = asset_path "#{type}.#{extention}"
         send(method, options)
       else
