@@ -15,12 +15,6 @@ class Cuba::Tracks
           # https://github.com/rkh/rack-protection/issues/11#issuecomment-9005539
           use Rack::Protection, except: :session_hijacking
 
-          if not Cuba.env.mounted? and Cuba.env.development?
-            require 'rack-livereload'
-            use Rack::LiveReload
-            use Rack::Reloader
-          end
-
           if Cuba.env.test? or Cuba.env.development?
             require 'pry'
             require 'pry-rescue'
